@@ -268,6 +268,32 @@
         .box:hover .tooltip {
             opacity: 1;
         }
+
+        @keyframes birthday-glow {
+            0%, 100% { text-shadow: 0 0 30px #ffd700; }
+            50% { text-shadow: 0 0 50px #ff6b6b; }
+        }
+
+        @keyframes milestone-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .birthday-message {
+            font-family: 'Shadows Into Light', cursive;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: #ffd700;
+            opacity: 0;
+            transition: opacity 2s;
+            z-index: 1000;
+            text-align: center;
+            animation: birthday-glow 2s infinite;
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -356,6 +382,7 @@
 
                     if (dayLeft % 100 === 0 && dayLeft <= 900 && dayLeft > 0) {
                         box.classList.add('milestone');
+                        box.style.animation = 'milestone-pulse 2s infinite';
                         addDayLabel(box, dayLeft);
                     }
 
@@ -457,7 +484,120 @@
                     keypressBuffer = keypressBuffer.slice(-10);
                 }
             });
+
+            checkBirthday(); // Add this line
+            
+            // Add periodic check for birthday (every hour)
+            setInterval(checkBirthday, 3600000);
+
+            updateSeasonalTheme(); // Add this line
+            
+            // Add this to your existing event listeners in the DOMContentLoaded section
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+B to trigger birthday celebration
+                if (e.ctrlKey && e.key === 'b') {
+                    e.preventDefault(); // Prevent default browser behavior
+                    const birthdayMessage = document.createElement('div');
+                    birthdayMessage.className = 'birthday-message';
+                    birthdayMessage.innerHTML = 'Joyeux Anniversaire Yves! 🎉<br>Bon Anniversaire! 🎂';
+                    document.body.appendChild(birthdayMessage);
+                    
+                    // Fade in
+                    setTimeout(() => birthdayMessage.style.opacity = '1', 100);
+                    
+                    // Remove existing birthday message after 5 seconds
+                    setTimeout(() => {
+                        birthdayMessage.style.opacity = '0';
+                        setTimeout(() => birthdayMessage.remove(), 2000);
+                    }, 5000);
+                    
+                    // Add falling confetti effect
+                    createConfetti();
+                }
+            });
         });
+
+        function checkBirthday() {
+            const today = new Date();
+            const month = today.getMonth();
+            const day = today.getDate();
+            
+            // Assuming Yves' birthday is on February 7th
+            if (month === 1 && day === 7) { // February is month 1 (0-based)
+                const birthdayMessage = document.createElement('div');
+                birthdayMessage.className = 'birthday-message';
+                birthdayMessage.innerHTML = 'Joyeux Anniversaire Yves! 🎉<br>Bon Anniversaire! 🎂';
+                document.body.appendChild(birthdayMessage);
+                
+                // Fade in
+                setTimeout(() => birthdayMessage.style.opacity = '1', 100);
+                
+                // Add falling confetti effect
+                createConfetti();
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.cssText = `
+                    position: fixed;
+                    width: 10px;
+                    height: 10px;
+                    background-color: ${colors[Math.floor(Math.random() * colors.length)]};
+                    left: ${Math.random() * 100}vw;
+                    top: -10px;
+                    opacity: 0;
+                    transform: rotate(${Math.random() * 360}deg);
+                    pointer-events: none;
+                    border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+                `;
+                
+                document.body.appendChild(confetti);
+                
+                const animation = confetti.animate([
+                    { transform: `translate(0, 0) rotate(0)`, opacity: 1 },
+                    { transform: `translate(${Math.random() * 100 - 50}px, ${window.innerHeight}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    easing: 'cubic-bezier(.37,0,.63,1)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        function updateSeasonalTheme() {
+            const today = new Date();
+            const month = today.getMonth();
+            
+            // Winter theme
+            if (month === 11 || month === 0 || month === 1) {
+                document.documentElement.style.setProperty('--bg-color-dark', '#102040');
+                document.documentElement.style.setProperty('--crossed-bg-dark', 'rgba(135, 206, 235, 0.2)');
+            }
+            // Add more seasonal themes
+
+            //Spring theme
+            else if (month === 2 || month === 3 || month === 4) {
+                document.documentElement.style.setProperty('--bg-color-dark', '#228B22');
+                document.documentElement.style.setProperty('--crossed-bg-dark', 'rgba(255, 215, 0, 0.2)');
+            }
+
+            //Summer theme
+            else if (month === 5 || month === 6 || month === 7) {
+                document.documentElement.style.setProperty('--bg-color-dark', '#FF6347');
+                document.documentElement.style.setProperty('--crossed-bg-dark', 'rgba(0, 0, 128, 0.2)');
+            }
+            
+            //Autumn theme
+            else if (month === 8 || month === 9 || month === 10) {
+                document.documentElement.style.setProperty('--bg-color-dark', '#800000');
+                document.documentElement.style.setProperty('--crossed-bg-dark', 'rgba(255, 215, 0, 0.2)');
+            }
+        }
     </script>
 </body>
 </html>
